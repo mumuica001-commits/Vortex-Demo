@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Vortex",
+      "hasCanvas": false,
+      "bodyTextLen": 748,
+      "bodyTextHash": "e154ad67b5185d53650248e91fd700a96e171d92671d367da394ada33b34d649",
+      "bodyTextPrefix": "VORTEX Instalar app CHAMADA PRIVADA Vídeo nítido. Amigos na hora",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Vortex",
+      "hasCanvas": false,
+      "bodyTextLen": 748,
+      "bodyTextHash": "e154ad67b5185d53650248e91fd700a96e171d92671d367da394ada33b34d649",
+      "bodyTextPrefix": "VORTEX Instalar app CHAMADA PRIVADA Vídeo nítido. Amigos na hora",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
