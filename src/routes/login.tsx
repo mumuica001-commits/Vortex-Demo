@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { GROK_PROVIDERS, authClient, authEnabled, signIn } from "@/lib/auth/client";
+import { authClient, authEnabled } from "@/lib/auth/client";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,17 +34,6 @@ function GoogleMark() {
   );
 }
 
-function XMark() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-4" aria-hidden>
-      <path
-        fill="currentColor"
-        d="M14.7 10.3 22 2h-2.2l-6.3 7.2L8.4 2H2l7.7 11.2L2 22h2.2l6.8-7.7L15.6 22H22l-7.3-11.7Zm-2.4 2.7-.8-1.1L5 3.5h2.7l5.1 7.3.8 1.1 6.7 9.6h-2.7l-5.3-7.8Z"
-      />
-    </svg>
-  );
-}
-
 function Login() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
@@ -53,12 +42,15 @@ function Login() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  async function onSocial(providerId: string) {
+  async function onGoogleSignIn() {
     setError(null);
     try {
-      await signIn(providerId, { callbackURL: "/" });
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Falha ao entrar");
+      setError(err instanceof Error ? err.message : "Falha ao entrar com Google");
     }
   }
 
@@ -94,7 +86,7 @@ function Login() {
             Entre para chamar
           </h1>
           <p className="mt-2 text-sm text-muted">
-            Google, X ou email. Amigos, convites e o celular como webcam ficam na sua conta.
+            Google ou email. Amigos, convites e o celular como webcam ficam na sua conta.
           </p>
         </div>
 
@@ -104,19 +96,16 @@ function Login() {
           ) : (
             <>
               <div className="flex flex-col gap-2">
-                {GROK_PROVIDERS.map((p) => (
-                  <Button
-                    key={p.providerId}
-                    type="button"
-                    variant="secondary"
-                    size="lg"
-                    onClick={() => void onSocial(p.providerId)}
-                    className="w-full"
-                  >
-                    {p.idp === "google" ? <GoogleMark /> : <XMark />}
-                    Continuar com {p.label}
-                  </Button>
-                ))}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => void onGoogleSignIn()}
+                  className="w-full"
+                >
+                  <GoogleMark />
+                  Continuar com Google
+                </Button>
               </div>
 
               <div className="my-5 flex items-center gap-3">
