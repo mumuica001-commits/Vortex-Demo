@@ -1,9 +1,5 @@
 import { createAuthClient } from "better-auth/react";
 
-/**
- * Cliente Better Auth oficial para o browser.
- * Comunica diretamente com as rotas /api/auth/* da sua aplicação.
- */
 export const authClient = createAuthClient({
   baseURL: typeof window !== "undefined" ? window.location.origin : "",
 });
@@ -16,9 +12,6 @@ export function getBearerToken(): string | null {
   return null;
 }
 
-/**
- * Função de logout limpa usando a sessão padrão por cookies HTTP-only.
- */
 export async function signOut(redirectTo = "/"): Promise<void> {
   await authClient.signOut();
   if (typeof window !== "undefined") {
@@ -26,9 +19,6 @@ export async function signOut(redirectTo = "/"): Promise<void> {
   }
 }
 
-/**
- * Dispara o login social direto (ex: "google").
- */
 export async function signIn(
   providerId: string,
   opts: { callbackURL?: string } = {},
