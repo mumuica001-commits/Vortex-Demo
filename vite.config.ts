@@ -5,13 +5,15 @@ import tailwindcss from "@tailwindcss/vite";
 import { nitro } from "nitro/vite";
 
 export default defineConfig(({ command, isPreview }) => ({
+  resolve: { tsconfigPaths: true },
   plugins: [
-    tanstackStart(),
     tailwindcss(),
+    tanstackStart(),
     ...(command === "build" || isPreview
       ? [
           nitro({
             preset: "vercel",
+            inlineDynamicImports: true, // <- Adicione esta linha
           }),
         ]
       : []),
