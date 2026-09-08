@@ -3,7 +3,7 @@ const path = require("path");
 
 // IMPORTANTE: troque pela URL real do seu backend depois do deploy (Vercel).
 // Pode ser sobrescrita sem recompilar via variável de ambiente VORTEX_URL.
-const DEPLOYED_URL = process.env.VORTEX_URL || "https://SEU-APP.vercel.app";
+const DEPLOYED_URL = process.env.VORTEX_URL || "https://vortex-demo-cyan.vercel.app";
 
 function createWindow() {
   const win = new BrowserWindow({
