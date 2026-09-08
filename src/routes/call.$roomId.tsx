@@ -191,7 +191,7 @@ function CallPage() {
   }
 
   return (
-    <main className="glow-field flex min-h-dvh flex-col">
+    <main className="flex min-h-dvh flex-col bg-bg">
       <header className="flex items-center justify-between px-4 py-3">
         <BrandMark />
         <div className="flex items-center gap-2 text-xs text-muted">

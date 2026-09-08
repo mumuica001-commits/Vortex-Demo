@@ -119,7 +119,7 @@ function Home() {
   );
 
   return (
-    <div className="glow-field flex min-h-dvh">
+    <div className="flex min-h-dvh bg-bg">
       {inbox?.ringing && (
         <IncomingCall
           call={inbox.ringing}
@@ -167,13 +167,16 @@ function Home() {
                 Amigos
               </Button>
             )}
-            <span className="hidden sm:inline-flex">
-              <InstallPrompt compact />
-            </span>
+            <InstallPrompt compact />
             {isPending ? (
               <span className="size-8 animate-pulse rounded-full bg-bg-subtle" />
             ) : signedIn ? (
-              <UserButton />
+              <div className="flex items-center gap-3">
+                <UserButton />
+                <Link to="/conta" className="text-xs text-muted underline">
+                  Minha conta
+                </Link>
+              </div>
             ) : (
               <Button asChild size="sm">
                 <Link to="/login">Entrar</Link>

@@ -1,0 +1,34 @@
+{
+  "name": "vortex-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vortex — chamadas de vídeo, amigos e chat (app de desktop)",
+  "main": "main.js",
+  "author": "Vortex",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win nsis portable"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.vortex.app",
+    "productName": "Vortex",
+    "files": ["main.js", "preload.js", "icon.ico"],
+    "win": {
+      "icon": "icon.ico",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}

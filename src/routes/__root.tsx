@@ -12,7 +12,7 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: APP_NAME },
-      { name: "theme-color", content: "#050806" },
+      { name: "theme-color", content: "#0c0d10" },
       {
         name: "description",
         content: "Chamadas de vídeo, amigos e celular como webcam.",
@@ -40,9 +40,9 @@ export const Route = createRootRoute({
           position="top-center"
           toastOptions={{
             style: {
-              background: "#0a100e",
-              color: "#e8fff6",
-              border: "1px solid rgb(10 227 156 / 0.18)",
+              background: "#14151c",
+              color: "#eef0f4",
+              border: "1px solid rgb(238 240 244 / 0.1)",
             },
           }}
         />

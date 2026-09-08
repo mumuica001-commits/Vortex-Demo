@@ -40,7 +40,7 @@ function CamPage() {
   const linked = room.peers.some((p) => p.connectionState === "connected");
 
   return (
-    <main className="glow-field flex min-h-dvh flex-col">
+    <main className="flex min-h-dvh flex-col bg-bg">
       <header className="flex items-center justify-between px-4 py-3">
         <BrandMark />
         <span className="font-display text-xs tracking-[0.2em] text-muted tabular-nums">

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { authClient, authEnabled } from "@/lib/auth/client";
-import { BrandMark } from "@/components/brand-mark";
+import { GROK_PROVIDERS, authClient, authEnabled, signIn, socialLoginEnabled } from "@/lib/auth/client";
+import { acceptTerms } from "@/lib/lgpd/fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -34,6 +34,17 @@ function GoogleMark() {
   );
 }
 
+function XMark() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-4" aria-hidden>
+      <path
+        fill="currentColor"
+        d="M14.7 10.3 22 2h-2.2l-6.3 7.2L8.4 2H2l7.7 11.2L2 22h2.2l6.8-7.7L15.6 22H22l-7.3-11.7Zm-2.4 2.7-.8-1.1L5 3.5h2.7l5.1 7.3.8 1.1 6.7 9.6h-2.7l-5.3-7.8Z"
+      />
+    </svg>
+  );
+}
+
 function Login() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
@@ -41,22 +52,24 @@ function Login() {
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
-  async function onGoogleSignIn() {
+  async function onSocial(providerId: string) {
     setError(null);
     try {
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL: "/",
-      });
+      await signIn(providerId, { callbackURL: "/" });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Falha ao entrar com Google");
+      setError(err instanceof Error ? err.message : "Falha ao entrar");
     }
   }
 
   async function onEmail(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (mode === "register" && !termsAccepted) {
+      setError("É preciso aceitar os Termos de Uso e a Política de Privacidade");
+      return;
+    }
     setBusy(true);
     try {
       if (mode === "register") {
@@ -66,6 +79,13 @@ function Login() {
           name: name.trim() || email.split("@")[0] || "Vortex",
         });
         if (signUpError) throw new Error(signUpError.message ?? "Não foi possível criar a conta");
+        // Sessão já ativa após o cadastro — registra o consentimento (LGPD).
+        try {
+          await acceptTerms();
+        } catch {
+          // Não bloqueia o cadastro por causa disso; o registro de consentimento
+          // pode ser tentado de novo depois se necessário.
+        }
       }
       const { error: signInError } = await authClient.signIn.email({ email, password });
       if (signInError) throw new Error(signInError.message ?? "Email ou senha incorretos");
@@ -78,15 +98,27 @@ function Login() {
   }
 
   return (
-    <main className="glow-field relative min-h-dvh overflow-hidden px-5 py-10">
+    <main className="relative min-h-dvh overflow-hidden px-5 py-10">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(900px 480px at 50% -10%, rgb(216 221 230 / 0.07), transparent 60%)",
+        }}
+      />
       <div className="relative mx-auto flex min-h-[calc(100dvh-5rem)] w-full max-w-md flex-col justify-center">
-        <div className="stagger-in mb-8 flex flex-col items-center text-center">
-          <BrandMark className="mb-6" />
+        <div className="stagger-in mb-8 text-center">
+          <p className="mb-3 font-display text-[11px] font-semibold tracking-[0.28em] text-muted uppercase">
+            Vortex
+          </p>
           <h1 className="font-display text-3xl font-semibold tracking-tight text-fg">
             Entre para chamar
           </h1>
           <p className="mt-2 text-sm text-muted">
-            Google ou email. Amigos, convites e o celular como webcam ficam na sua conta.
+            {socialLoginEnabled
+              ? "Google, X ou email. Amigos, convites e o celular como webcam ficam na sua conta."
+              : "Entre com email e senha. Amigos, convites e o celular como webcam ficam na sua conta."}
           </p>
         </div>
 
@@ -95,24 +127,31 @@ function Login() {
             <p className="text-sm text-muted">Entrada desativada neste ambiente.</p>
           ) : (
             <>
-              <div className="flex flex-col gap-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => void onGoogleSignIn()}
-                  className="w-full"
-                >
-                  <GoogleMark />
-                  Continuar com Google
-                </Button>
-              </div>
+              {socialLoginEnabled && (
+                <>
+                  <div className="flex flex-col gap-2">
+                    {GROK_PROVIDERS.map((p) => (
+                      <Button
+                        key={p.providerId}
+                        type="button"
+                        variant="secondary"
+                        size="lg"
+                        onClick={() => void onSocial(p.providerId)}
+                        className="w-full"
+                      >
+                        {p.idp === "google" ? <GoogleMark /> : <XMark />}
+                        Continuar com {p.label}
+                      </Button>
+                    ))}
+                  </div>
 
-              <div className="my-5 flex items-center gap-3">
-                <span className="h-px flex-1 bg-border" />
-                <span className="text-[11px] tracking-wide text-subtle uppercase">ou email</span>
-                <span className="h-px flex-1 bg-border" />
-              </div>
+                  <div className="my-5 flex items-center gap-3">
+                    <span className="h-px flex-1 bg-border" />
+                    <span className="text-[11px] tracking-wide text-subtle uppercase">ou email</span>
+                    <span className="h-px flex-1 bg-border" />
+                  </div>
+                </>
+              )}
 
               <div className="mb-4 grid grid-cols-2 gap-1 rounded-xl bg-bg p-1 shadow-[var(--shadow-border)]">
                 {(["login", "register"] as const).map((m) => (
@@ -160,8 +199,35 @@ function Login() {
                   minLength={8}
                   required
                 />
+                {mode === "register" && (
+                  <label className="flex items-start gap-2 text-xs text-muted">
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      className="mt-0.5"
+                      required
+                    />
+                    <span>
+                      Li e aceito os{" "}
+                      <Link to="/termos" target="_blank" className="underline">
+                        Termos de Uso
+                      </Link>{" "}
+                      e a{" "}
+                      <Link to="/privacidade" target="_blank" className="underline">
+                        Política de Privacidade
+                      </Link>
+                      .
+                    </span>
+                  </label>
+                )}
                 {error && <p className="text-sm text-danger">{error}</p>}
-                <Button type="submit" size="lg" disabled={busy} className="mt-1 w-full">
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={busy || (mode === "register" && !termsAccepted)}
+                  className="mt-1 w-full"
+                >
                   {busy ? "Aguarde…" : mode === "login" ? "Entrar" : "Criar conta"}
                 </Button>
               </form>

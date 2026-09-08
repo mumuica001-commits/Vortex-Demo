@@ -1,0 +1,36 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "electron/**"
+      - ".github/workflows/build-windows.yml"
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Instalar dependências
+        working-directory: electron
+        run: npm install
+
+      - name: Compilar instalador (.exe) e versão portátil
+        working-directory: electron
+        run: npm run dist:win
+
+      - name: Publicar os arquivos .exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: vortex-windows
+          path: |
+            electron/dist/*.exe
+          if-no-files-found: error
