@@ -1,12 +1,6 @@
 /**
- * Cabeçalhos de segurança aplicados a toda resposta HTTP (produção e dev).
- * Auto-registrado pelo Nitro porque vite.config.ts define `serverDir: "./server"`.
- *
- * Ajustado para o que este app realmente usa:
- * - WebRTC com STUN público (Google + Cloudflare) — liberado em connect-src.
- * - Câmera/microfone/compartilhamento de tela — liberados via Permissions-Policy,
- *   mas só para o próprio site (self), nunca para iframes de terceiros.
- * - Sem scripts inline (verificado em __root.tsx) — script-src fica estrito.
+ * Cabeçalhos de segurança aplicados a toda resposta HTTP.
+ * Ajustado para permitir hidratação do TanStack Start e extensões necessárias.
  */
 export default async function securityHeadersMiddleware(
   event: { req: { headers: Headers } },
@@ -21,7 +15,6 @@ export default async function securityHeadersMiddleware(
 
   const headers = new Headers(result.headers);
 
-  // HTTPS forçado por 1 ano (inclui subdomínios). Sem efeito em http:// local.
   if (isHttps) {
     headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   }
@@ -30,7 +23,6 @@ export default async function securityHeadersMiddleware(
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("X-Frame-Options", "DENY");
 
-  // Câmera/microfone/tela: só para este site, nunca para um iframe de terceiro.
   headers.set(
     "Permissions-Policy",
     "camera=(self), microphone=(self), display-capture=(self), geolocation=(), payment=(), usb=()",
@@ -38,16 +30,19 @@ export default async function securityHeadersMiddleware(
 
   const csp = [
     "default-src 'self'",
-    "script-src 'self'",
+    // Adicionado 'unsafe-inline', 'unsafe-eval' e suporte a extensões/grok para não quebrar a hidratação do React
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://grok.com",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
-    "connect-src 'self' stun:stun.l.google.com:19302 stun:stun.cloudflare.com:3478",
+    // Removido o esquema inválido 'stun:', liberando conexões HTTPS e WSS
+    "connect-src 'self' https: wss:",
     "media-src 'self' blob:",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
   ].join("; ");
+
   headers.set("Content-Security-Policy", csp);
 
   return new Response(result.body, {
